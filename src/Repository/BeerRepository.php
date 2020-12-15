@@ -36,8 +36,30 @@ class BeerRepository extends ServiceEntityRepository
         return $data;
     }
 
+    public function get(?string $sort, int $offset = 0, int $limit = 5): array
+    {
+        $qb = $this->createQueryBuilder('b')
+                   ->select('b.id, b.name, b.abv, b.ibu, b.description, b.last_mod')
+                   ->addSelect('identity(b.category) as category_id')
+                   ->addSelect('identity(b.style) as style_id')
+                   ->addSelect('identity(b.brewery) as brewery_id')
+                   ->setFirstResult($offset)
+                   ->setMaxResults($limit);
 
-    public function createFromArray(Array $data, Brewery $brewer, Category $cat, Style $style)
+        switch ($sort) {
+            case 'abv':
+            case 'ibu':
+                $qb->orderBy("b.$sort", 'DESC');
+                break;
+            default:
+        }
+
+        $query = $qb->getQuery();
+        return $query->getResult();
+    }
+
+
+    public function createFromArray(Array $data, Brewery $brewer, Category $cat, Style $style): Beer
     {
         $data = $this->cleanData($data);
 
