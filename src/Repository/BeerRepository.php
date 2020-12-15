@@ -45,23 +45,11 @@ class BeerRepository extends ServiceEntityRepository
         $beer = new Beer();
         $beer->setName($data[0]);
         $beer->setId((int)$data[1]);
-        $beer->setBreweryId((int)$data[2]);
-        $beer->setCatId((int)$data[3]);
-        $beer->setStyleId((int)$data[4]);
         $beer->setAbv($data[5]);
         $beer->setIbu($data[6]);
         $beer->setDescription($data[10]);
         $beer->setAddUser((int)$data[11]);
         $beer->setLastMod($data[12]);
-        $beer->setStyle($data[13]);
-        $beer->setCategory($data[14]);
-        $beer->setBrewer($data[15]);
-        $beer->setAddress($data[16]);
-        $beer->setCity($data[17]);
-        // $beer->setState($data[18]);
-        $beer->setCountry($data[19]);
-        $beer->setCoordinates($data[20]);
-        $beer->setWebsite($data[21]);
 
         return $beer;
     }

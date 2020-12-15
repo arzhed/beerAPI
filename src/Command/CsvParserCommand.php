@@ -6,6 +6,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 use App\Entity\Beer;
+use App\Entity\Brewery;
+use App\Entity\Category;
+use App\Entity\Style;
 use App\Repository\BeerRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -31,26 +34,46 @@ class CsvParserCommand extends Command
     {
         $em = $this->container->get('doctrine')->getManager();
         $beers = $this->container->get('doctrine')->getRepository(Beer::class);
+        $categories = $this->container->get('doctrine')->getRepository(Category::class);
+        $styles = $this->container->get('doctrine')->getRepository(Style::class);
+        $breweries = $this->container->get('doctrine')->getRepository(Brewery::class);
 
         // $path = realpath($this->get('kernel')->getRootDir() . '/open-beer-database.csv');
         $flush = 0;
+        $count = 0;
+
         if (($handle = fopen("open-beer-database.csv", "r")) !== FALSE) {
             $header = fgetcsv($handle, 0, ";");
             print_r($header);
-            while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
+            while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
+                if ($count % 100 == 0) {
+
+                    echo $count . PHP_EOL;
+                }
+                // print_r($data);
+                // if ($count == 1) {
+                //     print_r($em->getUnitOfWork()->getScheduledEntityInsertions());
+                //     die;
+                // }
                 if (count($data) == 22) {
+
+                    $cat = $categories->findOrCreate($data[14]);
+                    $style = $styles->findOrCreate($data[13]);
+                    $brewer = $breweries->findOrCreateFromArray($data);
                     $beer = $beers->createFromArray($data);
+
                     if ($beer) {
                         $em->persist($beer);
-                        if (++$flush >= 100) {
-                            $em->flush();
-                            $flush = 0;
-                        }
+                    }
+
+                    if (++$flush >= 500 || $cat || $style) {
+                        $em->flush();
+                        $flush = 0;
                     }
                 } else {
-                //     print_r($data);
                 //     die;
                 }
+                $count++;
             }
             fclose($handle);
         }

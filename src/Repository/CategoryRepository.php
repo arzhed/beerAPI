@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @method Category|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,9 +15,24 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CategoryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
         parent::__construct($registry, Category::class);
+        $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
+    }
+
+    public function findOrCreate(string $name)
+    {
+        $cat = $this->findOneBy(['name' => $name]);
+        if (!$cat) {
+            $cat = new Category;
+            $cat->setName($name);
+            $this->em->persist($cat);
+            $this->em->flush();
+        }
+
+        return $cat;
     }
 
     // /**

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\BeerRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -115,6 +117,16 @@ class Beer
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $website;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Checkin::class, mappedBy="beer")
+     */
+    private $checkins;
+
+    public function __construct()
+    {
+        $this->checkins = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -321,6 +333,36 @@ class Beer
     public function setWebsite(?string $website): self
     {
         $this->website = $website;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Checkin[]
+     */
+    public function getCheckins(): Collection
+    {
+        return $this->checkins;
+    }
+
+    public function addCheckin(Checkin $checkin): self
+    {
+        if (!$this->checkins->contains($checkin)) {
+            $this->checkins[] = $checkin;
+            $checkin->setBeer($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCheckin(Checkin $checkin): self
+    {
+        if ($this->checkins->removeElement($checkin)) {
+            // set the owning side to null (unless already changed)
+            if ($checkin->getBeer() === $this) {
+                $checkin->setBeer(null);
+            }
+        }
 
         return $this;
     }

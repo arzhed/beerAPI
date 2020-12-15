@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Style;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @method Style|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,9 +15,28 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class StyleRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $container;
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
         parent::__construct($registry, Style::class);
+        $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
+    }
+
+    public function findOrCreate(string $name)
+    {
+        $style = $this->findOneBy(['name' => $name]);
+
+        if (!$style) {
+            $style = new Style;
+            $style->setName($name);
+            $this->em->persist($style);
+            $this->em->flush();
+        }
+
+        return $style;
     }
 
     // /**
