@@ -50,17 +50,13 @@ class CsvParserCommand extends Command
 
                     echo $count . PHP_EOL;
                 }
-                // print_r($data);
-                // if ($count == 1) {
-                //     print_r($em->getUnitOfWork()->getScheduledEntityInsertions());
-                //     die;
-                // }
+
                 if (count($data) == 22) {
 
                     $cat = $categories->findOrCreate($data[14]);
                     $style = $styles->findOrCreate($data[13]);
                     $brewer = $breweries->findOrCreateFromArray($data);
-                    $beer = $beers->createFromArray($data);
+                    $beer = $beers->createFromArray($data, $brewer, $cat, $style);
 
                     if ($beer) {
                         $em->persist($beer);

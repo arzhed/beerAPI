@@ -3,6 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Beer;
+use App\Entity\Brewery;
+use App\Entity\Category;
+use App\Entity\Style;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -34,7 +37,7 @@ class BeerRepository extends ServiceEntityRepository
     }
 
 
-    public function createFromArray(Array $data)
+    public function createFromArray(Array $data, Brewery $brewer, Category $cat, Style $style)
     {
         $data = $this->cleanData($data);
 
@@ -48,8 +51,12 @@ class BeerRepository extends ServiceEntityRepository
         $beer->setAbv($data[5]);
         $beer->setIbu($data[6]);
         $beer->setDescription($data[10]);
-        $beer->setAddUser((int)$data[11]);
+        // $beer->setAddUser((int)$data[11]);
         $beer->setLastMod($data[12]);
+
+        $beer->setBrewery($brewer);
+        $beer->setStyle($style);
+        $beer->setCategory($cat);
 
         return $beer;
     }
