@@ -6,6 +6,8 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * @method User|null find($id, $lockMode = null, $lockVersion = null)
  * @method User|null findOneBy(array $criteria, array $orderBy = null)
@@ -14,37 +16,30 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $container;
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
         parent::__construct($registry, User::class);
+        $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
-    // /**
-    //  * @return User[] Returns an array of User objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function create(array $data): User
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('u.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $user = new User;
+        $user->setEmail($data['email']);
+        $user->setpassword(password_hash($data['password'], PASSWORD_BCRYPT));
+        $user->setPseudo($data['pseudo']);
+        $user->setRole('standard');
+        $user->setCreatedAt(new \DateTime);
+        $user->setUpdatedAt(new \DateTime);
 
-    /*
-    public function findOneBySomeField($value): ?User
-    {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $user;
     }
-    */
+
 }
