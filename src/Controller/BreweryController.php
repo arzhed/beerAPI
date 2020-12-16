@@ -111,4 +111,27 @@ class BreweryController extends AbstractController
             'website'     => $brewer->getWebsite(),
         ]);
     }
+
+    /**
+     * @Route("/brewery/{id}", name="delete_brewery", methods={"DELETE"})
+     */
+    public function delete(int $id): Response
+    {
+        $rep = $this->getDoctrine()->getRepository(Brewery::class);
+
+        $brewer = $rep->find($id);
+        if (!$brewer) {
+            return new Response('Not Found', 404);
+        }
+
+        if ($brewer->getBeers()->count() > 0) {
+            return new Response('Still making beers', 409);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($brewer);
+        $em->flush();
+
+        return new Response('OK');
+    }
 }
