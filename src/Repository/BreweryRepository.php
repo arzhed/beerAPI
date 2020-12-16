@@ -25,24 +25,31 @@ class BreweryRepository extends ServiceEntityRepository
         $this->em = $this->container->get('doctrine')->getManager();
     }
 
-    public function findOrCreateFromArray(array $data)
+    public function create(array $data): Brewery
+    {
+        $brewer = new Brewery;
+        $brewer->setName($data['brewery'] ?? null);
+        $brewer->setAddress($data['address'] ?? null);
+        $brewer->setCity($data['city'] ?? null);
+        $brewer->setState($data['state'] ?? null);
+        $brewer->setCountry($data['country'] ?? null);
+        $brewer->setCoordinates($data['coordinates'] ?? null);
+        $brewer->setWebsite($data['website'] ?? null);
+        $brewer->setCreatedAt(new \DateTime);
+        $brewer->setUpdatedAt(new \DateTime);
+
+        $this->em->persist($brewer);
+        $this->em->flush();
+
+        return $brewer;
+    }
+
+    public function findOrCreateFromArray(array $data): Brewery
     {
         $brewer = $this->findOneBy(['name' => $data['name']]);
 
         if (!$brewer) {
-            $brewer = new Brewery;
-            $brewer->setName($data['brewery']);
-            $brewer->setAddress($data['address']);
-            $brewer->setCity($data['city']);
-            $brewer->setState($data['state']);
-            $brewer->setCountry($data['country']);
-            $brewer->setCoordinates($data['coordinates']);
-            $brewer->setWebsite($data['website']);
-            $brewer->setCreatedAt(new \DateTime);
-            $brewer->setUpdatedAt(new \DateTime);
-
-            $this->em->persist($brewer);
-            $this->em->flush();
+            $brewer = $this->create($data);
         }
 
         return $brewer;
