@@ -46,7 +46,7 @@ class BreweryRepository extends ServiceEntityRepository
 
     public function findOrCreateFromArray(array $data): Brewery
     {
-        $brewer = $this->findOneBy(['name' => $data['name']]);
+        $brewer = $this->findOneBy(['name' => $data['brewery']]);
 
         if (!$brewer) {
             $brewer = $this->create($data);
