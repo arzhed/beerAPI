@@ -27,17 +27,17 @@ class BreweryRepository extends ServiceEntityRepository
 
     public function findOrCreateFromArray(array $data)
     {
-        $brewer = $this->findOneBy(['name' => $data[15]]);
+        $brewer = $this->findOneBy(['name' => $data['name']]);
 
         if (!$brewer) {
             $brewer = new Brewery;
-            $brewer->setName($data[15]);
-            $brewer->setAddress($data[16]);
-            $brewer->setCity($data[17]);
-            $brewer->setState($data[18]);
-            $brewer->setCountry($data[19]);
-            $brewer->setCoordinates($data[20]);
-            $brewer->setWebsite($data[21]);
+            $brewer->setName($data['brewery']);
+            $brewer->setAddress($data['address']);
+            $brewer->setCity($data['city']);
+            $brewer->setState($data['state']);
+            $brewer->setCountry($data['country']);
+            $brewer->setCoordinates($data['coordinates']);
+            $brewer->setWebsite($data['website']);
             $brewer->setCreatedAt(new \DateTime);
             $brewer->setUpdatedAt(new \DateTime);
 

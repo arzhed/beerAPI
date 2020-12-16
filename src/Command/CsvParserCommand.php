@@ -33,7 +33,16 @@ class CsvParserCommand extends Command
             'ibu'         => $data[6],
             'description' => $data[10],
             'last_mod'    => $data[12],
-            'created_at'  => $data[12]
+            'created_at'  => $data[12],
+            'style'       => $data[13],
+            'category'    => $data[14],
+            'brewery'     => $data[15],
+            'address'     => $data[16],
+            'city'        => $data[17],
+            'state'       => $data[18],
+            'country'     => $data[19],
+            'coordinates' => $data[20],
+            'website'     => $data[21]
         ];
     }
 
@@ -56,10 +65,11 @@ class CsvParserCommand extends Command
                 }
 
                 if (count($data) == 22) {
-                    $cat = $categories->findOrCreate($data[14]);
-                    $style = $styles->findOrCreate($data[13]);
+                    $data = $this->convertData($data);
+                    $cat = $categories->findOrCreate($data['category']);
+                    $style = $styles->findOrCreate($data['style']);
                     $brewer = $breweries->findOrCreateFromArray($data);
-                    $beer = $beers->createFromArray($this->convertData($data), $brewer, $cat, $style);
+                    $beer = $beers->createFromArray($data, $brewer, $cat, $style);
 
                     if ($beer) {
                         $em->persist($beer);
