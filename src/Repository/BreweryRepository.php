@@ -55,4 +55,39 @@ class BreweryRepository extends ServiceEntityRepository
         return $brewer;
     }
 
+    public function update(Brewery $brewer, array $data)
+    {
+        if (isset($data['name'])) {
+            $other = $this->findOneBy(['name' => $data['name']]);
+            if ($other) {
+                throw new \Exception("Name already taken");
+            }
+            $brewer->setName($data['name']);
+        }
+        if (isset($data['address'])) {
+            $brewer->setAddress($data['address']);
+        }
+        if (isset($data['city'])) {
+            $brewer->setCity($data['city']);
+        }
+        if (isset($data['state'])) {
+            $brewer->setState($data['state']);
+        }
+        if (isset($data['country'])) {
+            $brewer->setCountry($data['country']);
+        }
+        if (isset($data['coordinates'])) {
+            $brewer->setCoordinates($data['coordinates']);
+        }
+        if (isset($data['website'])) {
+            $brewer->setWebsite($data['website']);
+        }
+
+        $brewer->setUpdatedAt(new \DateTime);
+
+        $this->em->flush();
+
+        return $brewer;
+    }
+
 }

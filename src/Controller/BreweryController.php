@@ -49,9 +49,46 @@ class BreweryController extends AbstractController
         }
 
         $brewer = $rep->findOneBy(['name' => $request->request->get('name')]);
+        if ($brewer) {
+            return new Response("Duplicate", 409);
+        }
+
+        $brewer = $rep->create([
+            'brewery'     => $request->get('name'),
+            'address'     => $request->get('address'),
+            'city'        => $request->get('city'),
+            'state'       => $request->get('state'),
+            'country'     => $request->get('country'),
+            'coordinates' => $request->get('coordinates'),
+            'website'     => $request->get('website')
+        ]);
+
+        return $this->json([
+            'name'        => $brewer->getName(),
+            'address'     => $brewer->getAddress(),
+            'city'        => $brewer->getCity(),
+            'state'       => $brewer->getState(),
+            'country'     => $brewer->getCountry(),
+            'coordinates' => $brewer->getCoordinates(),
+            'website'     => $brewer->getWebsite(),
+        ]);
+    }
+
+    /**
+     * @Route("/brewery/{id}", name="update_brewery", methods={"PUT"})
+     */
+    public function update(int $id, Request $request): Response
+    {
+        $rep = $this->getDoctrine()->getRepository(Brewery::class);
+
+        $brewer = $rep->find($id);
         if (!$brewer) {
-            $brewer = $rep->create([
-                'brewery'     => $request->get('name'),
+            return new Response('Not Found', 404);
+        }
+
+        try {
+            $brewer = $rep->update($brewer, [
+                'name'        => $request->get('name'),
                 'address'     => $request->get('address'),
                 'city'        => $request->get('city'),
                 'state'       => $request->get('state'),
@@ -59,9 +96,10 @@ class BreweryController extends AbstractController
                 'coordinates' => $request->get('coordinates'),
                 'website'     => $request->get('website')
             ]);
-        } else {
-            return new Response("Duplicate", 409);
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), 400);
         }
+
 
         return $this->json([
             'name'        => $brewer->getName(),

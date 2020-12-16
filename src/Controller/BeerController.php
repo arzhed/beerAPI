@@ -43,10 +43,10 @@ class BeerController extends AbstractController
         }
 
         return $this->json([
-            'id'   => $beer->getId(),
-            'name' => $beer->getName(),
-            'abv'  => $beer->getAbv(),
-            'ibu'  => $beer->getIbu(),
+            'id'          => $beer->getId(),
+            'name'        => $beer->getName(),
+            'abv'         => $beer->getAbv(),
+            'ibu'         => $beer->getIbu(),
             'description' => $beer->getDescription(),
             'brewery_id'  => $beer->getBrewery()->getId()
         ]);
@@ -68,9 +68,9 @@ class BeerController extends AbstractController
             : null;
 
         $beer = $this->getDoctrine()->getRepository(Beer::class)->createFromArray([
-            'name'    => $request->request->get('name'),
-            'ibu'     => $request->request->get('ibu'),
-            'abv'     => $request->request->get('abv'),
+            'name'        => $request->request->get('name'),
+            'ibu'         => $request->request->get('ibu'),
+            'abv'         => $request->request->get('abv'),
             'description' => $request->request->get('description')
         ], $brewer);
 
@@ -97,18 +97,18 @@ class BeerController extends AbstractController
             return new Response('Could not find Beer', 404);
 
         $beer = $rep->update($beer, [
-            'name'    => $request->get('name'),
-            'ibu'     => $request->get('ibu'),
-            'abv'     => $request->get('abv'),
+            'name'        => $request->get('name'),
+            'ibu'         => $request->get('ibu'),
+            'abv'         => $request->get('abv'),
             'description' => $request->get('description'),
             'brewery_id'  => $request->get('brewery_id')
         ]);
 
         return $this->json([
-            'id'   => $beer->getId(),
-            'name' => $beer->getName(),
-            'abv'  => $beer->getAbv(),
-            'ibu'  => $beer->getIbu(),
+            'id'          => $beer->getId(),
+            'name'        => $beer->getName(),
+            'abv'         => $beer->getAbv(),
+            'ibu'         => $beer->getIbu(),
             'description' => $beer->getDescription(),
             'brewery_id'  => $beer->getBrewery()->getId()
         ]);
