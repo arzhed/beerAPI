@@ -15,7 +15,7 @@ class Beer
     /**
      * @var int
      * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
+     * @ORM\GeneratedValue
      * @ORM\Column(name="id", type="integer")
      */
     private $id;
@@ -76,13 +76,6 @@ class Beer
         $this->checkins = new ArrayCollection();
     }
 
-    public function setId($id)
-    {
-        $this->id = $id;
-
-        return $this;
-    }
-
     public function getId(): ?int
     {
         return $this->id;
@@ -141,8 +134,14 @@ class Beer
         return $this->last_mod;
     }
 
-    public function setLastMod(?\DateTimeInterface $last_mod): self
+    public function setLastMod($last_mod): self
     {
+        if (is_string($last_mod)) {
+            $last_mod = \DateTime::createFromFormat("U", strtotime($last_mod));
+        }
+        if (get_class($last_mod) != 'DateTime') {
+            throw new \Exception("Beer::setLastMod only takes DateTime");
+        }
         $this->last_mod = $last_mod;
 
         return $this;
@@ -219,10 +218,17 @@ class Beer
         return $this->created_at;
     }
 
-    public function setCreatedAt(\DateTimeInterface $created_at): self
+    public function setCreatedAt($created_at): self
     {
+        if (is_string($created_at)) {
+            $created_at = \DateTime::createFromFormat("U", strtotime($created_at));
+        }
+        if (get_class($created_at) != 'DateTime') {
+            throw new \Exception("Beer::setCreatedAt only takes DateTime");
+        }
         $this->created_at = $created_at;
 
         return $this;
     }
+
 }

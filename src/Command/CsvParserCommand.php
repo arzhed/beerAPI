@@ -25,9 +25,16 @@ class CsvParserCommand extends Command
         $this->container = $container;
     }
 
-    protected function configure()
-    {
-        // ...
+    protected function convertData(array $data) {
+        return [
+            'name'        => $data[0],
+            'id'          => $data[1],
+            'abv'         => $data[5],
+            'ibu'         => $data[6],
+            'description' => $data[10],
+            'last_mod'    => $data[12],
+            'created_at'  => $data[12]
+        ];
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -52,7 +59,7 @@ class CsvParserCommand extends Command
                     $cat = $categories->findOrCreate($data[14]);
                     $style = $styles->findOrCreate($data[13]);
                     $brewer = $breweries->findOrCreateFromArray($data);
-                    $beer = $beers->createFromArray($data, $brewer, $cat, $style);
+                    $beer = $beers->createFromArray($this->convertData($data), $brewer, $cat, $style);
 
                     if ($beer) {
                         $em->persist($beer);
