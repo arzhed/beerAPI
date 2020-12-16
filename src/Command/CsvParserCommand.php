@@ -38,21 +38,17 @@ class CsvParserCommand extends Command
         $styles = $this->container->get('doctrine')->getRepository(Style::class);
         $breweries = $this->container->get('doctrine')->getRepository(Brewery::class);
 
-        // $path = realpath($this->get('kernel')->getRootDir() . '/open-beer-database.csv');
         $flush = 0;
         $count = 0;
 
         if (($handle = fopen("open-beer-database.csv", "r")) !== FALSE) {
             $header = fgetcsv($handle, 0, ";");
-            print_r($header);
             while (($data = fgetcsv($handle, 0, ";")) !== FALSE) {
                 if ($count % 100 == 0) {
-
                     echo $count . PHP_EOL;
                 }
 
                 if (count($data) == 22) {
-
                     $cat = $categories->findOrCreate($data[14]);
                     $style = $styles->findOrCreate($data[13]);
                     $brewer = $breweries->findOrCreateFromArray($data);
@@ -66,8 +62,6 @@ class CsvParserCommand extends Command
                         $em->flush();
                         $flush = 0;
                     }
-                } else {
-                //     die;
                 }
                 $count++;
             }

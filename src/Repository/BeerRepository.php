@@ -24,12 +24,23 @@ class BeerRepository extends ServiceEntityRepository
         parent::__construct($registry, Beer::class);
     }
 
-    protected function cleanData(Array $data)
+    protected function validate(Array $data)
     {
         foreach ($data as $key => &$value) {
-            $value = empty($value) ? null : $value;
-            if ($key == 12 && !is_null($value)) {
-                $value = \DateTime::createFromFormat("U", strtotime($data[12]));
+            switch ($key) {
+                case 1:
+                case 6:
+                    $value = (int) (is_numeric($value) ? $value : 0);
+                    break;
+                case 5:
+                    $value = (float)(is_numeric($value) ? $value : 0.0);
+                    break;
+                case 12:
+                    $value = \DateTime::createFromFormat("U", strtotime($data[12]));
+                    if (!$value)
+                        $value = new \DateTime;
+                    break;
+                default:
             }
         }
 
@@ -59,12 +70,12 @@ class BeerRepository extends ServiceEntityRepository
     }
 
 
-    public function createFromArray(Array $data, Brewery $brewer, Category $cat, Style $style): Beer
+    public function createFromArray(Array $data, Brewery $brewer, Category $cat, Style $style): ?Beer
     {
-        $data = $this->cleanData($data);
+        $data = $this->validate($data);
 
-        if ($this->find($data[1])) {
-            return false;
+        if (!$data || $this->find($data[1])) {
+            return null;
         }
 
         $beer = new Beer();
@@ -74,6 +85,7 @@ class BeerRepository extends ServiceEntityRepository
         $beer->setIbu($data[6]);
         $beer->setDescription($data[10]);
         // $beer->setAddUser((int)$data[11]);
+        $beer->setCreatedAt($data[12]);
         $beer->setLastMod($data[12]);
 
         $beer->setBrewery($brewer);
