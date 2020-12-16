@@ -18,10 +18,14 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class BeerRepository extends ServiceEntityRepository
 {
+    private $container;
+    private $em;
 
     public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
         parent::__construct($registry, Beer::class);
+        $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
     public function get(?string $sort, int $offset = 0, int $limit = 5): array
@@ -93,4 +97,33 @@ class BeerRepository extends ServiceEntityRepository
         return $beer;
     }
 
+
+    public function update(Beer $beer, array $data)
+    {
+        $data = $this->validate($data);
+
+        if (isset($data['name'])) {
+            $beer->setName($data['name']);
+        }
+        if (isset($data['abv'])) {
+            $beer->setAbv($data['abv']);
+        }
+        if (isset($data['ibu'])) {
+            $beer->setIbu($data['ibu']);
+        }
+        if (isset($data['description'])) {
+            $beer->setDescription($data['description']);
+        }
+        if (isset($data['brewery_id'])) {
+            $brewer = is_numeric($data['brewery_id'])
+                ? $this->container->get('doctrine')->getRepository(Brewery::class)->find((int)$data['brewery_id'])
+                : null;
+            $beer->setBrewery($brewer);
+        }
+
+        $beer->setLastMod(new \DateTime);
+        $this->em->flush();
+
+        return $beer;
+    }
 }

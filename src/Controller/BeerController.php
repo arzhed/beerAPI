@@ -32,7 +32,7 @@ class BeerController extends AbstractController
     }
 
     /**
-     * @Route("/beer/{id}", name="beer")
+     * @Route("/beer/{id}", name="beer", methods={"GET"})
      */
     public function find(int $id)
     {
@@ -84,5 +84,32 @@ class BeerController extends AbstractController
         return $this->json($beer->getId());
     }
 
+    /**
+     * @Route("/beer/{id}", name="update_beer", methods={"PUT"})
+     */
+    public function update(int $id, Request $request)
+    {
+        $rep = $this->getDoctrine()->getRepository(Beer::class);
+
+        $beer = $rep->find($id);
+        if (!$beer) {
+            return new Response('Could not find Beer', 404);
+
+        $beer = $rep->update($beer, [
+            'name'    => $request->get('name'),
+            'ibu'     => $request->get('ibu'),
+            'abv'     => $request->get('abv'),
+            'description' => $request->get('description'),
+            'brewery_id'  => $request->get('brewery_id')
+        ]);
+
+        return $this->json([
+            'id'   => $beer->getId(),
+            'name' => $beer->getName(),
+            'abv'  => $beer->getAbv(),
+            'ibu'  => $beer->getIbu(),
+            'brewery_id' => $beer->getBrewery()->getId()
+        ]);
+    }
 
 }
