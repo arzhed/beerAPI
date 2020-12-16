@@ -47,7 +47,8 @@ class BeerController extends AbstractController
             'name' => $beer->getName(),
             'abv'  => $beer->getAbv(),
             'ibu'  => $beer->getIbu(),
-            'brewery_id' => $beer->getBrewery()->getId()
+            'description' => $beer->getDescription(),
+            'brewery_id'  => $beer->getBrewery()->getId()
         ]);
     }
 
@@ -92,7 +93,7 @@ class BeerController extends AbstractController
         $rep = $this->getDoctrine()->getRepository(Beer::class);
 
         $beer = $rep->find($id);
-        if (!$beer) {
+        if (!$beer)
             return new Response('Could not find Beer', 404);
 
         $beer = $rep->update($beer, [
@@ -108,8 +109,27 @@ class BeerController extends AbstractController
             'name' => $beer->getName(),
             'abv'  => $beer->getAbv(),
             'ibu'  => $beer->getIbu(),
-            'brewery_id' => $beer->getBrewery()->getId()
+            'description' => $beer->getDescription(),
+            'brewery_id'  => $beer->getBrewery()->getId()
         ]);
+    }
+
+    /**
+     * @Route("/beer/{id}", name="delete_beer", methods={"DELETE"})
+     */
+    public function delete(int $id)
+    {
+        $rep = $this->getDoctrine()->getRepository(Beer::class);
+
+        $beer = $rep->find($id);
+        if (!$beer)
+            return new Response('Could not find Beer', 404);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($beer);
+        $em->flush();
+
+        return new Response('OK');
     }
 
 }
