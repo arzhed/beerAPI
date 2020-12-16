@@ -3,8 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Checkin;
+use App\Entity\Beer;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * @method Checkin|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,37 +18,34 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CheckinRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $container;
+    private $em;
+
+    public function __construct(ManagerRegistry $registry, ContainerInterface $container)
     {
         parent::__construct($registry, Checkin::class);
+        $this->container = $container;
+        $this->em = $this->container->get('doctrine')->getManager();
     }
 
-    // /**
-    //  * @return Checkin[] Returns an array of Checkin objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function createOrUpdate(float $note, Beer $beer, User $user): Checkin
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $checkin = $this->findOneBy(['beer' => $beer, 'user' => $user]);
+        if ($checkin) {
+            $checkin->setNote($note);
+            $checkin->setUpdatedAt(new \DateTime);
+        } else {
+            $checkin = new Checkin;
+            $checkin->setBeer($beer);
+            $checkin->setUser($user);
+            $checkin->setNote($note);
+            $checkin->setCreatedAt(new \DateTime);
+            $checkin->setUpdatedAt(new \DateTime);
+            $this->em->persist($checkin);
+        }
 
-    /*
-    public function findOneBySomeField($value): ?Checkin
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $this->em->flush();
+
+        return $checkin;
     }
-    */
 }
